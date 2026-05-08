@@ -20,19 +20,21 @@ namespace Etteplan.Test.Parser
         public void ValidXml_ExistingId_SucessResult()
         {
             // Arrange
-            var xmlContent = @"<trans-unit id=""42014"" restype=""string"">
-				                <source>Filen hittades inte.</source>
-				                <target>File not found.</target>
-				                    <alt-trans>
-					                    <target>Filen saknas.</target>
-					                    <note>Alternative translation</note>
-				                    </alt-trans>
-			                   </trans-unit>
-			                   <trans-unit id=""42015"" restype=""string"">
-				                   <source>Loading...</source>
-				                   <target>Laddar...</target>
-				                   <note>Indicates a loading state</note>
-			                   </trans-unit>";
+            var xmlContent = @"<root>
+                                    <trans-unit id=""42014"" restype=""string"">
+				                        <source>Filen hittades inte.</source>
+				                        <target>File not found.</target>
+				                            <alt-trans>
+					                            <target>Filen saknas.</target>
+					                            <note>Alternative translation</note>
+				                            </alt-trans>
+			                       </trans-unit>
+			                       <trans-unit id=""42015"" restype=""string"">
+				                       <source>Loading...</source>
+				                       <target>Laddar...</target>
+				                       <note>Indicates a loading state</note>
+			                       </trans-unit>
+                               </root> ";
 
             var idToParse = "42014";
             
@@ -50,19 +52,55 @@ namespace Etteplan.Test.Parser
         }
 
         [TestMethod]
+        public void ValidXml_ExistingId_EmptyTarget_ErrorResult()
+        {
+            // Arrange
+            var xmlContent = @"<root>
+                                    <trans-unit id=""42014"" restype=""string"">
+				                    <source>Filen hittades inte.</source>
+				                    <target></target>
+				                        <alt-trans>
+					                        <target>Filen saknas.</target>
+					                        <note>Alternative translation</note>
+				                        </alt-trans>
+			                       </trans-unit>
+			                       <trans-unit id=""42015"" restype=""string"">
+				                       <source>Loading...</source>
+				                       <target>Laddar...</target>
+				                       <note>Indicates a loading state</note>
+			                       </trans-unit>
+                               </root>";
+
+            var idToParse = "42014";
+
+            // Act
+            var result = _parser!.Parse(xmlContent, idToParse);
+
+            // Assert
+            Assert.IsInstanceOfType<ErrorResult>(result);
+
+            var errorResult = (ErrorResult)result;
+
+            Assert.AreEqual(Status.Failure, errorResult.Status);
+            Assert.AreEqual("Target is empty", errorResult.Message);
+        }
+
+        [TestMethod]
         public void ValidXml_NonExistingId_ErrorResult()
         {
             // Arrange
-            var xmlContent = @"<trans-unit id=""42015"" restype=""string"">
-				                   <source>Loading...</source>
-				                   <target>Laddar...</target>
-				                   <note>Indicates a loading state</note>
-			                   </trans-unit>
-			                   <trans-unit id=""42016"" restype=""string"">
-				                   <source>Connection lost.</source>
-				                   <target>Anslutningen bröts.</target>
-				                   <note>Displayed when network connection is lost</note>
-			                   </trans-unit>";
+            var xmlContent = @"<root>
+                                    <trans-unit id=""42015"" restype=""string"">
+				                       <source>Loading...</source>
+				                       <target>Laddar...</target>
+				                       <note>Indicates a loading state</note>
+			                       </trans-unit>
+			                       <trans-unit id=""42016"" restype=""string"">
+				                       <source>Connection lost.</source>
+				                       <target>Anslutningen bröts.</target>
+				                       <note>Displayed when network connection is lost</note>
+			                       </trans-unit>
+                               </root>";
 
             var idToParse = "42014";
 
@@ -79,20 +117,22 @@ namespace Etteplan.Test.Parser
         }
 
         [TestMethod]
-        public void NonValidXml_ErrorResult()
+        public void ValidXml_ExistingId_NoTarget_ErrorResult()
         {
             // Arrange
-            var xmlContent = @"<trans-unit id=""42014"" restype=""string"">
-				                <source>Filen hittades inte.</source>
-				                    <alt-trans>
-					                    <target>Filen saknas.</target>
-					                    <note>Alternative translation</note>
-				                    </alt-trans>
-			                   </trans-unit>
-			                   <trans-unit id=""42015"" restype=""string"">
-				                   <source>Loading...</source>
-				                   <note>Indicates a loading state</note>
-			                   </trans-unit>";
+            var xmlContent = @"<root>
+                                    <trans-unit id=""42014"" restype=""string"">
+				                    <source>Filen hittades inte.</source>
+				                        <alt-trans>
+					                        <target>Filen saknas.</target>
+					                        <note>Alternative translation</note>
+				                        </alt-trans>
+			                       </trans-unit>
+			                       <trans-unit id=""42015"" restype=""string"">
+				                       <source>Loading...</source>
+				                       <note>Indicates a loading state</note>
+			                       </trans-unit>
+                               </root>";
 
             var idToParse = "42014";
 
@@ -105,7 +145,7 @@ namespace Etteplan.Test.Parser
             var errorResult = (ErrorResult)result;
 
             Assert.AreEqual(Status.Failure, errorResult.Status);
-            Assert.AreEqual("Expected tag target not found.", errorResult.Message);
+            Assert.AreEqual("Expected target not found.", errorResult.Message);
         }
     }
 }
