@@ -16,7 +16,6 @@ namespace Etteplan.Core.Parser
                 .Where(e => e.Attribute("id")?.Value == id)
                 .FirstOrDefault();
 
-
             if (res != null)
             {
                 var target = res.Element("target")?.Value;
