@@ -12,7 +12,7 @@ namespace Etteplan.Core.Parser
         {
             var doc = XDocument.Parse(xmlContent);
 
-            var res = doc.Root!.Elements("trans-unit")
+            var res = doc.Descendants("trans-unit")
                 .Where(e => e.Attribute("id")?.Value == id)
                 .FirstOrDefault();
 
